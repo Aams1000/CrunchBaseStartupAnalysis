@@ -18,7 +18,7 @@ public class JSONWrapperOrganization {
 	}
 	
 	//getter for JSON parser to find appropriate value in JSON string
-//	@JsonProperty(JSON_ORGANIZATION)
+	//	@JsonProperty(JSON_ORGANIZATION)
 	public Organization getOrganization(){
 		return organization;
 	}

@@ -14,23 +14,30 @@ public class Organization {
 //	private ArrayList<FundingRound> fundingRounds = new ArrayList<FundingRound>();
 //	private ArrayList<Investor> investors = new ArrayList<Investor>();
 	
+	//Relationships object contains all relevant Investors, FundingRounds, news, etc.
+	private Relationships relationships;
 	
 	//properties object
 	private OrganizationProperties properties;
 	
 	//CrunchBase data labels for JSON to locate appropriate values
 	private final String JSON_PROPERTIES = "properties";
+	private final String JSON_RELATIONSHIPS = "relationships";
 	
 	//constructor for JSON parser
 	@JsonCreator
-	public Organization(@JsonProperty(JSON_PROPERTIES) OrganizationProperties properties){
+	public Organization(@JsonProperty(JSON_PROPERTIES) OrganizationProperties properties, @JsonProperty(JSON_RELATIONSHIPS) Relationships relationships){
 		this.properties = properties;
+		this.relationships = relationships;
 	}
 
 	//getters and setters
-	//@JsonProperty(JSON_PROPERTIES)
 	public OrganizationProperties getProperties(){
 		return properties;
+	}
+	
+	public Relationships getRelationships(){
+		return relationships;
 	}
 }
 

@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
@@ -33,6 +34,20 @@ public class AnalyzeStartupScene {
         CrunchBaseQuery testQuery = new CrunchBaseQuery("facebook", ORGANIZATION);
         
         companies = generateCompanies(COMPANIES_FILE);
+        System.out.println("Done generating companies.");
+        //print out investors
+        for (Entry<String, Organization> entry : companies.entrySet()){
+        	Relationships relationships = entry.getValue().getRelationships();
+        	System.out.println("Inside for loop.");
+        	if (relationships.getInvestors() != null){
+        		System.out.println("Relationships not null.");
+        		for (Entry<String, Investor> investorEntry : relationships.getInvestors().entrySet()){
+        			Investor investor = investorEntry.getValue();
+        			investor.getProperties().print();
+        		}
+        	}
+        }
+        System.out.println("Finished printing investors.");   
     }
     
     //read in Organization names from file, constructs companies out of them.
@@ -57,7 +72,8 @@ public class AnalyzeStartupScene {
                 	String result = futureResult.get();
                 	if (result != null){
                 		JSONWrapperOrganization organizationData = mapper.readValue(result, JSONWrapperOrganization.class);
-                		organizationData.getOrganization().getProperties().print();
+                		newCompanies.put(line, organizationData.getOrganization());
+                		//organizationData.getOrganization().getProperties().print();
                 	}
                 }
                 catch (InterruptedException | ExecutionException ex) {
