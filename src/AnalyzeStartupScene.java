@@ -38,14 +38,25 @@ public class AnalyzeStartupScene {
         //print out investors
         for (Entry<String, Organization> entry : companies.entrySet()){
         	Relationships relationships = entry.getValue().getRelationships();
-        	System.out.println("Inside for loop.");
-        	if (relationships.getInvestors() != null){
-        		System.out.println("Relationships not null.");
-        		for (Entry<String, Investor> investorEntry : relationships.getInvestors().entrySet()){
-        			Investor investor = investorEntry.getValue();
-        			investor.getProperties().print();
-        		}
-        	}
+        	//System.out.println("Inside for loop.");
+//        	if (relationships.getInvestors() != null){
+//        		System.out.println("Relationships not null.");
+//        		for (Entry<String, Investor> investorEntry : relationships.getInvestors().entrySet()){
+//        			Investor investor = investorEntry.getValue();
+//        			investor.getProperties().print();
+//        		}
+//        	}
+//        	//print out funding rounds
+//          	if (relationships.getFundingRounds() != null){
+//        		for (FundingRound fundingRound : relationships.getFundingRounds()){
+//        			fundingRound.getProperties().print();
+//        		}
+//        	}
+          	if (relationships.getInvestments() != null){
+          		for (Investment investment : relationships.getInvestments()){
+          			investment.getProperties().print();
+          		}
+          	}
         }
         System.out.println("Finished printing investors.");   
     }

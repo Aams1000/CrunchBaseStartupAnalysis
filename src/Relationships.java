@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -13,21 +14,45 @@ public class Relationships {
 	//ConcurrentHashMap of Investors
 	private ConcurrentHashMap<String, Investor> investors = new ConcurrentHashMap<String, Investor>();
 	
+	//ArrayList of FundingRounds (this will never be too big, and the API isn't giving any good unique identifiers
+	//apart from the node ID in the CrunchBase system, so searching through this linearly for analysis is fine)
+	private ArrayList<FundingRound> fundingRounds = new ArrayList<FundingRound>();
+	
+	//ArrayList of Investments (this will never be too big, and the API isn't giving any good unique identifiers
+	//apart from the node ID in the CrunchBase system, so searching through this linearly for analysis is fine)
+	private ArrayList<Investment> investments = new ArrayList<Investment>();
 	/*****************************ADD FUNDINGROUNDS**************************/
 	
 	//CrunchBase data labels for JSON to locate appropriate values
 	private final String JSON_INVESTORS = "investors";
+	private final String JSON_FUNDING_ROUNDS = "funding_rounds";
+	private final String JSON_INVESTMENTS = "investments";
 	
 	//constructor for JSON parser to use
 	@JsonCreator
-	public Relationships(@JsonProperty(JSON_INVESTORS) JSONWrapperInvestor investors){
+	public Relationships(@JsonProperty(JSON_INVESTORS) JSONWrapperInvestor investors,
+			@JsonProperty(JSON_FUNDING_ROUNDS) JSONWrapperFundingRound fundingRounds,
+			@JsonProperty(JSON_INVESTMENTS) JSONWrapperInvestment investments){
 		//convert list into ConcurrentHashMap for easy use
 		if (investors != null){
 			for (Investor investor : investors.getInvestors()){
 				this.investors.put(investor.getPermalink(), investor);
-				
 			}
 			System.out.println("Number of investors: " + this.investors.size());
+		}
+		//access FundingRounds
+		if (fundingRounds != null){
+			for (FundingRound fundingRound : fundingRounds.getFundingRounds()){
+				this.fundingRounds.add(fundingRound);
+			}
+			System.out.println("Number of funding rounds: " + this.fundingRounds.size());
+		}
+		//access Investments
+		if (investments != null){
+			for (Investment investment : investments.getInvestments()){
+				this.investments.add(investment);
+			}
+			System.out.println("Number of investments: " + this.investments.size());
 		}
 	}
 	
@@ -35,5 +60,10 @@ public class Relationships {
 	public ConcurrentHashMap<String, Investor> getInvestors(){
 		return investors;
 	}
-
+	public ArrayList<FundingRound> getFundingRounds(){
+		return fundingRounds;
+	}
+	public ArrayList<Investment> getInvestments(){
+		return investments;
+	}
 }

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties (ignoreUnknown = true)
 public class Investor {
 	
-	//possible types
+	//possible types (didn't end up using these, but keeping them here for reference)
 	private final String PERSON = "Person";
 	private final String ORGANIZATION = "Organization";
 	
@@ -19,15 +19,21 @@ public class Investor {
 	//properties object
 	private InvestorProperties properties;
 	
+	//relationships object for Investments
+	private Relationships relationships;
+	
 	//variables for JsonConstructor
 	private final String JSON_INVESTOR_TYPE = "type";
 	private final String JSON_PROPERTIES = "properties";
+	private final String JSON_RELATIONSHIPS = "relationships";
 	
 	//constructor for JSON parser
-	public Investor(@JsonProperty(JSON_INVESTOR_TYPE) String type, @JsonProperty(JSON_PROPERTIES) InvestorProperties properties){
+	public Investor(@JsonProperty(JSON_INVESTOR_TYPE) String type, @JsonProperty(JSON_PROPERTIES) InvestorProperties properties,
+			@JsonProperty(JSON_RELATIONSHIPS) Relationships relationships){
 		//this.organization = organization;
 		this.type = type;
 		this.properties = properties;
+		this.relationships = relationships;
 		properties.setType(type);
 		System.out.println("Investor type: " + type.trim());
 	}
@@ -40,7 +46,9 @@ public class Investor {
 	public InvestorProperties getProperties(){
 		return properties;
 	}
-	
+	public String getType(){
+		return type;
+	}
 
 }
 
