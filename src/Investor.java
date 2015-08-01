@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -35,8 +37,39 @@ public class Investor {
 		this.properties = properties;
 		this.relationships = relationships;
 		properties.setType(type);
-		System.out.println("Investor type: " + type.trim());
+		long totalInvestingUSD = findTotalInvestingUSD();
+		properties.setTotalInvestingUSD(totalInvestingUSD);
+		//System.out.println("Investor type: " + type.trim());
+		//people don't have their number of investments stored directly in the API profile
+		if (type.equals(PERSON)){
+			properties.setNumInvestments(findNumInvestments());
+		}
 	}
+	//findTotalInvestingUSD function sums up all Investor's investments
+	private long findTotalInvestingUSD(){
+		long totalInvestments = 0;
+		//hmm, looks like this function might have made it crash. perhaps relationships was null at that point?
+		if (relationships == null)
+			return 0;
+		ArrayList<Investment> investments = relationships.getInvestments();
+		if(investments != null){
+			for (Investment investment : investments){
+				long moneyInvested = totalInvestments += investment.getProperties().getMoneyInvestedUSD();
+				//if (moneyInvested != null)
+					totalInvestments += moneyInvested;
+			}
+		}
+		return totalInvestments;
+	}
+	//findTotalInvestingUSD function sums up all Investor's investments
+		private long findNumInvestments(){
+			//hmm, looks like this function might have made it crash. perhaps relationships was null at that point?
+			if (relationships == null)
+				return 0;
+			if (relationships.getInvestments() != null)
+				return relationships.getInvestments().size();
+			return 0;
+		}
 	
 	//getters
 	public String getPermalink(){

@@ -59,6 +59,11 @@ public class OrganizationProperties {
 
 	}
 	
+	//getters
+	public long getTotalFundingUSD(){
+		return totalFundingUSD;
+	}
+	
 	//print function prints everything!
 	public void print(){
 		System.out.println("Permalink: " + permalink);

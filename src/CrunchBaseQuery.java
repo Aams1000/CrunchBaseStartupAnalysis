@@ -11,6 +11,7 @@ public class CrunchBaseQuery implements Callable<String> {
 	
 	//formats for query fields
 	private final String ORGANIZATIONS_SEARCH = "organizations/";
+	private final String PEOPLE_SEARCH = "people/";
 	private final String API_KEY_PREFIX = "user_key=";
 	private final String SEARCH_SIGNIFIER = "?";
 	
@@ -45,7 +46,7 @@ public class CrunchBaseQuery implements Callable<String> {
 			query.append(ORGANIZATIONS_SEARCH);
 		}
 		else{
-			//ADD PERSON SEARCH
+			query.append(PEOPLE_SEARCH);
 		}
 		query.append(permalink);
 		query.append(SEARCH_SIGNIFIER);

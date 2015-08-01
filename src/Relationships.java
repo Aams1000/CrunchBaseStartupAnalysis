@@ -21,7 +21,6 @@ public class Relationships {
 	//ArrayList of Investments (this will never be too big, and the API isn't giving any good unique identifiers
 	//apart from the node ID in the CrunchBase system, so searching through this linearly for analysis is fine)
 	private ArrayList<Investment> investments = new ArrayList<Investment>();
-	/*****************************ADD FUNDINGROUNDS**************************/
 	
 	//CrunchBase data labels for JSON to locate appropriate values
 	private final String JSON_INVESTORS = "investors";
@@ -38,21 +37,21 @@ public class Relationships {
 			for (Investor investor : investors.getInvestors()){
 				this.investors.put(investor.getPermalink(), investor);
 			}
-			System.out.println("Number of investors: " + this.investors.size());
+			//System.out.println("Number of investors: " + this.investors.size());
 		}
 		//access FundingRounds
 		if (fundingRounds != null){
 			for (FundingRound fundingRound : fundingRounds.getFundingRounds()){
 				this.fundingRounds.add(fundingRound);
 			}
-			System.out.println("Number of funding rounds: " + this.fundingRounds.size());
+			//System.out.println("Number of funding rounds: " + this.fundingRounds.size());
 		}
 		//access Investments
 		if (investments != null){
 			for (Investment investment : investments.getInvestments()){
 				this.investments.add(investment);
 			}
-			System.out.println("Number of investments: " + this.investments.size());
+			//System.out.println("Number of investments: " + this.investments.size());
 		}
 	}
 	

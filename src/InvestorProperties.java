@@ -19,6 +19,7 @@ public class InvestorProperties {
 	private String permalink; //we can use the permalink as a unique identifier! Wahoo!
 	private String name;
 	private long totalFundingUSD;
+	private long totalInvestingUSD;
 	private String website;
 	private URL blog;
 	private String description;
@@ -78,16 +79,26 @@ public class InvestorProperties {
 	public void setType(String type){
 		this.type = type;
 	}
+	//same for totalInvestingUSD
+	public void setTotalInvestingUSD(long totalInvestingUSD){
+		this.totalInvestingUSD = totalInvestingUSD;
+	}
+	public void setNumInvestments(long numInvestments){
+		this.numInvestments = numInvestments;
+	}
 	
-	//getter for permalink
+	
+	//getters
 	public String getPermalink(){
 		return permalink;
+	}
+	public long getTotalInvestingUSD(){
+		return totalInvestingUSD;
 	}
 	
 	//print function prints everything!
 	public void print(){
 		
-		System.out.println("Entered print function.");
 		if (type.equals(ORGANIZATION)){
 			System.out.println("Type: " + type);
 			System.out.println("Permalink: " + permalink);
@@ -98,6 +109,7 @@ public class InvestorProperties {
 			System.out.println("Min employees: " + minEmployees);
 			System.out.println("Max employees: " + maxEmployees);
 			System.out.println("Number of investments: " + numInvestments);
+			System.out.println("Total investments: $" + totalInvestingUSD);
 			System.out.println("Stock symbol: " + stockSymbol);
 			System.out.println("Website: " + website);
 			System.out.println();
@@ -107,6 +119,8 @@ public class InvestorProperties {
 			System.out.println("Permalink: " + permalink);
 			System.out.println("First name: " + firstName);
 			System.out.println("Last name:" + lastName);
+			System.out.println("Number of investments: " + numInvestments);
+			System.out.println("Total investments: $" + totalInvestingUSD);
 			System.out.println();
 		}
 	}
