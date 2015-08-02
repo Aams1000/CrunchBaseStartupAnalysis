@@ -35,4 +35,7 @@ public class Investment {
 	public InvestmentProperties getProperties(){
 		return properties;
 	}
+	public Relationships getRelationships(){
+		return relationships;
+	}
 }

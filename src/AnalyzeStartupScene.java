@@ -178,6 +178,10 @@ public class AnalyzeStartupScene {
                     		currInvestor = investorData.getInvestor();
                     		//add to investors hashmap
                     		updatedInvestors.put(currInvestor.getPermalink(), currInvestor);
+                    		
+                    		
+                    		currInvestor.getProperties().print();
+                    		
                     	}
                     }
                     catch (InterruptedException | ExecutionException | IOException ex) {

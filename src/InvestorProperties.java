@@ -1,5 +1,6 @@
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -20,8 +21,9 @@ public class InvestorProperties {
 	private String name;
 	private long totalFundingUSD;
 	private long totalInvestingUSD;
+	private long averageInvestment;
 	private String website;
-	private URL blog;
+	private String blog;
 	private String description;
 	private String shortDescription;
 	private String foundedDate;
@@ -31,6 +33,7 @@ public class InvestorProperties {
 	private long numInvestments;
 	private String firstName;
 	private String lastName;
+	private ArrayList<Degree> degrees;
 
 	//CrunchBase data labels for JSON to locate appropriate values
 	private final String JSON_PERMALINK = "permalink";
@@ -47,9 +50,6 @@ public class InvestorProperties {
 	private final String JSON_NUM_INVESTMENTS = "number_of_investments";
 	private final String JSON_FIRST_NAME = "first_name";
 	private final String JSON_LAST_NAME = "last_name";
-	
-	
-	/*************************ADD BLOG******************************/
 	
 	//constructor takes all values from JSON string
 	@JsonCreator
@@ -75,6 +75,13 @@ public class InvestorProperties {
 		this.lastName = lastName;
 	}
 	
+	//to be called in Investor class after setting total investments and number of investments
+	public void calculateAverageInvestment(){
+		if (numInvestments == 0)
+			return;
+		averageInvestment = totalInvestingUSD / numInvestments;
+	}
+	
 	//Investor constructor passes type value through setter function
 	public void setType(String type){
 		this.type = type;
@@ -86,8 +93,12 @@ public class InvestorProperties {
 	public void setNumInvestments(long numInvestments){
 		this.numInvestments = numInvestments;
 	}
-	
-	
+	public void setBlogURL(String blog){
+		this.blog = blog;
+	}
+	public void setDegrees(ArrayList<Degree> degrees){
+		this.degrees = degrees;
+	}
 	//getters
 	public String getPermalink(){
 		return permalink;
@@ -98,7 +109,6 @@ public class InvestorProperties {
 	
 	//print function prints everything!
 	public void print(){
-		
 		if (type.equals(ORGANIZATION)){
 			System.out.println("Type: " + type);
 			System.out.println("Permalink: " + permalink);
@@ -109,9 +119,11 @@ public class InvestorProperties {
 			System.out.println("Min employees: " + minEmployees);
 			System.out.println("Max employees: " + maxEmployees);
 			System.out.println("Number of investments: " + numInvestments);
-			System.out.println("Total investments: $" + totalInvestingUSD);
+			System.out.println("Total investments: " + totalInvestingUSD);
+			System.out.println("Average investment: " + averageInvestment);
 			System.out.println("Stock symbol: " + stockSymbol);
 			System.out.println("Website: " + website);
+			System.out.println("Blog: " + blog);
 			System.out.println();
 		}
 		else if (type.equals(PERSON)){
@@ -121,6 +133,11 @@ public class InvestorProperties {
 			System.out.println("Last name:" + lastName);
 			System.out.println("Number of investments: " + numInvestments);
 			System.out.println("Total investments: $" + totalInvestingUSD);
+			System.out.println("Average investment: " + averageInvestment);
+			System.out.println("Website: " + website);
+			System.out.println("Blog: " + blog);
+			for (Degree degree : degrees)
+				degree.getProperties().print();
 			System.out.println();
 		}
 	}

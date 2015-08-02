@@ -22,16 +22,26 @@ public class Relationships {
 	//apart from the node ID in the CrunchBase system, so searching through this linearly for analysis is fine)
 	private ArrayList<Investment> investments = new ArrayList<Investment>();
 	
+	//ArrayList of Investments (this will never be too big, and the API isn't giving any good unique identifiers
+	//apart from the node ID in the CrunchBase system, so searching through this linearly for analysis is fine)
+	private ArrayList<Website> websites = new ArrayList<Website>();
+	private ArrayList<Degree> degrees = new ArrayList<Degree>();
+	
+	
 	//CrunchBase data labels for JSON to locate appropriate values
 	private final String JSON_INVESTORS = "investors";
 	private final String JSON_FUNDING_ROUNDS = "funding_rounds";
 	private final String JSON_INVESTMENTS = "investments";
+	private final String JSON_WEBSITES = "websites";
+	private final String JSON_DEGREES = "degrees";
 	
 	//constructor for JSON parser to use
 	@JsonCreator
 	public Relationships(@JsonProperty(JSON_INVESTORS) JSONWrapperInvestor investors,
 			@JsonProperty(JSON_FUNDING_ROUNDS) JSONWrapperFundingRound fundingRounds,
-			@JsonProperty(JSON_INVESTMENTS) JSONWrapperInvestment investments){
+			@JsonProperty(JSON_INVESTMENTS) JSONWrapperInvestment investments,
+			@JsonProperty(JSON_WEBSITES) JSONWrapperWebsite websites,
+			@JsonProperty(JSON_DEGREES) JSONWrapperDegree degrees){
 		//convert list into ConcurrentHashMap for easy use
 		if (investors != null){
 			for (Investor investor : investors.getInvestors()){
@@ -53,6 +63,20 @@ public class Relationships {
 			}
 			//System.out.println("Number of investments: " + this.investments.size());
 		}
+		//access websites
+		if (websites != null){
+			for (Website website : websites.getWebsites()){
+				this.websites.add(website);
+			}
+			//System.out.println("Number of investments: " + this.investments.size());
+		}
+		//access degrees
+		if (degrees != null){
+			for (Degree degree : degrees.getDegrees()){
+				this.degrees.add(degree);
+			}
+			//System.out.println("Number of investments: " + this.investments.size());
+		}
 	}
 	
 	//getters
@@ -64,5 +88,11 @@ public class Relationships {
 	}
 	public ArrayList<Investment> getInvestments(){
 		return investments;
+	}
+	public ArrayList<Website> getWebsites(){
+		return websites;
+	}
+	public ArrayList<Degree> getDegrees(){
+		return degrees;
 	}
 }

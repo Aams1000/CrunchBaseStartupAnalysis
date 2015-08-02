@@ -32,17 +32,21 @@ public class Investor {
 	//constructor for JSON parser
 	public Investor(@JsonProperty(JSON_INVESTOR_TYPE) String type, @JsonProperty(JSON_PROPERTIES) InvestorProperties properties,
 			@JsonProperty(JSON_RELATIONSHIPS) Relationships relationships){
-		//this.organization = organization;
 		this.type = type;
 		this.properties = properties;
 		this.relationships = relationships;
+		//assign variables not included directly in API profile
 		properties.setType(type);
 		long totalInvestingUSD = findTotalInvestingUSD();
 		properties.setTotalInvestingUSD(totalInvestingUSD);
-		//System.out.println("Investor type: " + type.trim());
+		properties.calculateAverageInvestment();
+		//investors do not have their blog stored directly in their API profiles
+		properties.setBlogURL(findBlogURL());
 		//people don't have their number of investments stored directly in the API profile
 		if (type.equals(PERSON)){
 			properties.setNumInvestments(findNumInvestments());
+			if (relationships != null)
+				properties.setDegrees(relationships.getDegrees());
 		}
 	}
 	//findTotalInvestingUSD function sums up all Investor's investments
@@ -60,6 +64,19 @@ public class Investor {
 			}
 		}
 		return totalInvestments;
+	}
+	//findBlogURL function loops through websites and returns blog address (if it exists)
+	private String findBlogURL(){
+		if (relationships == null)
+			return null;
+		ArrayList<Website> websites = relationships.getWebsites();
+		if (websites != null){
+			for (Website website : websites){
+				if (website.getProperties().getType().equals(website.getBlogIdentifier()))
+					return website.getProperties().getURL();
+			}
+		}
+		return null;
 	}
 	//findTotalInvestingUSD function sums up all Investor's investments
 		private long findNumInvestments(){
@@ -81,6 +98,9 @@ public class Investor {
 	}
 	public String getType(){
 		return type;
+	}
+	public Relationships getRelationships(){
+		return relationships;
 	}
 
 }

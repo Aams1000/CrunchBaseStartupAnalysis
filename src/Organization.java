@@ -1,4 +1,6 @@
 import java.net.URL;
+import java.util.ArrayList;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -29,13 +31,28 @@ public class Organization {
 	public Organization(@JsonProperty(JSON_PROPERTIES) OrganizationProperties properties, @JsonProperty(JSON_RELATIONSHIPS) Relationships relationships){
 		this.properties = properties;
 		this.relationships = relationships;
+		//find blog address if it exists
+		properties.setBlogURL(findBlogURL());
+	}
+	
+	//findBlogURL function loops through websites and returns blog address (if it exists)
+	private String findBlogURL(){
+		if (relationships == null)
+			return null;
+		ArrayList<Website> websites = relationships.getWebsites();
+		if (websites != null){
+			for (Website website : websites){
+				if (website.getProperties().getType().equals(website.getBlogIdentifier()))
+					return website.getProperties().getURL();
+			}
+		}
+		return null;
 	}
 
 	//getters and setters
 	public OrganizationProperties getProperties(){
 		return properties;
 	}
-	
 	public Relationships getRelationships(){
 		return relationships;
 	}

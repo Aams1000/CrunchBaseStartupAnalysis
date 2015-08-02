@@ -15,7 +15,7 @@ public class OrganizationProperties {
 	private String name;
 	private long totalFundingUSD;
 	private String website;
-	private URL blog;
+	private String blog;
 	private String description;
 	private String shortDescription;
 	private String foundedDate;
@@ -63,6 +63,10 @@ public class OrganizationProperties {
 	public long getTotalFundingUSD(){
 		return totalFundingUSD;
 	}
+	//organizations don't have their blog directly in their API profile
+	public void setBlogURL(String blog){
+		this.blog = blog;
+	}
 	
 	//print function prints everything!
 	public void print(){
@@ -76,6 +80,7 @@ public class OrganizationProperties {
 		System.out.println("Total funding (USD): " + totalFundingUSD);
 		System.out.println("Stock symbol: " + stockSymbol);
 		System.out.println("Website: " + website);
+		System.out.println("Blog: " + blog);
 		System.out.println();
 	}
 	
