@@ -3,6 +3,8 @@ import java.util.concurrent.Callable;
 
 import org.apache.http.client.fluent.Request;
 
+//CrunchBase query sends in a call to the API. Depending on the constructor parameters,
+//it will query either the organizations or people sections of the data base
 public class CrunchBaseQuery implements Callable<String> {
 
 	//web address and authorizations
@@ -65,7 +67,5 @@ public class CrunchBaseQuery implements Callable<String> {
 		catch(IOException ex){
 			ex.printStackTrace();
 		}
-		
-		//System.out.println(result);
 	}
 }

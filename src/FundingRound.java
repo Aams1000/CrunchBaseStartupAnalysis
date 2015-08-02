@@ -10,6 +10,9 @@ public class FundingRound {
 	//properties object
 	private FundingRoundProperties properties;
 	
+	//date format used in API
+	private final String DATE_FORMAT = "yyyy-mm-dd";
+	
 	//variables for JsonConstructor
 	private final String JSON_PROPERTIES = "properties";
 	
@@ -20,5 +23,8 @@ public class FundingRound {
 	
 	public FundingRoundProperties getProperties(){
 		return properties;
+	}
+	public String getDateFormat(){
+		return DATE_FORMAT;
 	}
 }

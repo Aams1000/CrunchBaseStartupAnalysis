@@ -1,7 +1,7 @@
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-//FundingRound object represents a funding round. The coding challenge requires little information about these,
+//FInvestment object represents an investment. The coding challenge requires little information about these,
 //so for the sake of time and simplicity I'll read in only a few variables from the API. This class can be
 //expanded easily to contain more information
 @JsonIgnoreProperties (ignoreUnknown = true)
@@ -10,8 +10,11 @@ public class Investment {
 	//properties object
 	private InvestmentProperties properties;
 	
-	//relationships object (used to access investment date through it's FundingRound)
+	//relationships object (used to access investment date through its FundingRound)
 	private Relationships relationships;
+	
+	//date format used in API
+	private final String DATE_FORMAT = "yyyy-mm-dd";
 	
 	//variables for JsonConstructor
 	private final String JSON_PROPERTIES = "properties";
@@ -37,5 +40,8 @@ public class Investment {
 	}
 	public Relationships getRelationships(){
 		return relationships;
+	}
+	public String getDateFormat(){
+		return DATE_FORMAT;
 	}
 }

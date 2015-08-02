@@ -1,5 +1,8 @@
+import java.util.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-
+import java.util.Calendar;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -15,8 +18,6 @@ public class Investor {
 	
 	//investor type, boolean indicators
 	private String type;
-	private boolean isPerson = false;
-	private boolean isOrganization = false;
 	
 	//properties object
 	private InvestorProperties properties;
@@ -79,15 +80,53 @@ public class Investor {
 		return null;
 	}
 	//findTotalInvestingUSD function sums up all Investor's investments
-		private long findNumInvestments(){
-			//hmm, looks like this function might have made it crash. perhaps relationships was null at that point?
-			if (relationships == null)
-				return 0;
-			if (relationships.getInvestments() != null)
-				return relationships.getInvestments().size();
+	private long findNumInvestments(){
+		//hmm, looks like this function might have made it crash. perhaps relationships was null at that point?
+		if (relationships == null)
 			return 0;
-		}
+		if (relationships.getInvestments() != null)
+			return relationships.getInvestments().size();
+		return 0;
+	}
 	
+	//getChangeInFunding takes two years, returns the change in funding between them
+	public long getChangeInFunding(int lastYear, int currentYear){
+		if (relationships == null)
+			return 0;
+		if (relationships.getInvestments() == null || relationships.getInvestments().isEmpty())
+			return 0;
+		long lastYearFunding = 0;
+		long currentFunding = 0;
+		long changeInFunding = 0;
+		SimpleDateFormat dateFormat = new SimpleDateFormat(relationships.getInvestments().get(0).getDateFormat());
+		//loop through FundingRounds for a
+		for (Investment investment : relationships.getInvestments()){
+			//a null date seemed to crash here...let's try to check beforehand
+			if (investment.getProperties().getDateAnnounced() == null)
+				continue;
+			//get year
+			Date date = null;
+			try {
+				date = (Date) dateFormat.parse(investment.getProperties().getDateAnnounced());
+			} catch (ParseException ex) {
+				ex.printStackTrace();
+			}
+			if (date == null)
+				continue;
+		    Calendar calendar = Calendar.getInstance();
+		    calendar.setTime(date);
+		    int year = calendar.get(Calendar.YEAR);
+		    if (year == lastYear)
+		    	lastYearFunding += investment.getProperties().getMoneyInvestedUSD();
+		    if (year == currentYear)
+		    	currentFunding += investment.getProperties().getMoneyInvestedUSD(); 
+		}
+		changeInFunding = currentFunding - lastYearFunding;
+		//update change in funding
+		properties.setChangeInFunding(changeInFunding);
+		return changeInFunding;
+	}
+		
 	//getters
 	public String getPermalink(){
 		return properties.getPermalink();
@@ -102,7 +141,4 @@ public class Investor {
 	public Relationships getRelationships(){
 		return relationships;
 	}
-
 }
-
-//for investors, we expect at least: name, website, blog, description, # of employees (if a company), degree (if a person)

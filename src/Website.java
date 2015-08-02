@@ -24,7 +24,6 @@ public class Website {
 	public WebsiteProperties getProperties(){
 		return properties;
 	}
-	
 	public String getBlogIdentifier(){
 		return BLOG_IDENTIFIER;
 	}

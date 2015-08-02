@@ -2,7 +2,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-//WebsiteProperties contains all important information about an Organization
+//DegreeProperties contains all important information about a Degree
 @JsonIgnoreProperties (ignoreUnknown = true)
 public class DegreeProperties {
 	
@@ -31,6 +31,16 @@ public class DegreeProperties {
 		System.out.println();
 	}
 	
+	//getters
+	public String getType(){
+		return name;
+	}
+	public String getSubject(){
+		return subject;
+	}
+	public String getSchool(){
+		return school;
+	}
 	//setter function for school
 	public void setSchool(String school){
 		this.school = school;

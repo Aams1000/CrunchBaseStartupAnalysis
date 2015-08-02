@@ -2,7 +2,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-//object to take entire JSON string from CrunchBase query
+//object to take entire JSON string from CrunchBase query for an investor (person or organization)
 @JsonIgnoreProperties (ignoreUnknown = true)
 public class JSONQueryWrapperInvestor {
 
@@ -18,7 +18,6 @@ public class JSONQueryWrapperInvestor {
 	}
 	
 	//getter for JSON parser to find appropriate value in JSON string
-	//	@JsonProperty(JSON_ORGANIZATION)
 	public Investor getInvestor(){
 		return investor;
 	}

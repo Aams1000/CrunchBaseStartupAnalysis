@@ -1,11 +1,7 @@
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sun.jna.platform.win32.Sspi.TimeStamp;
 
 //OrganizationProperties contains all important information about an Organization
 @JsonIgnoreProperties (ignoreUnknown = true)
@@ -33,6 +29,7 @@ public class InvestorProperties {
 	private long numInvestments;
 	private String firstName;
 	private String lastName;
+	public long changeInFunding;
 	private ArrayList<Degree> degrees;
 
 	//CrunchBase data labels for JSON to locate appropriate values
@@ -45,7 +42,6 @@ public class InvestorProperties {
 	private final String JSON_MAX_EMPLOYEES = "num_employees_max";
 	private final String JSON_TOTAL_FUNDING_USD = "total_funding_usd";
 	private final String JSON_WEBSITE = "homepage_url";
-	//private final String JSON_BLOG = "";
 	private final String JSON_STOCK_SYMBOL = "stock_symbol";
 	private final String JSON_NUM_INVESTMENTS = "number_of_investments";
 	private final String JSON_FIRST_NAME = "first_name";
@@ -81,7 +77,6 @@ public class InvestorProperties {
 			return;
 		averageInvestment = totalInvestingUSD / numInvestments;
 	}
-	
 	//Investor constructor passes type value through setter function
 	public void setType(String type){
 		this.type = type;
@@ -99,12 +94,64 @@ public class InvestorProperties {
 	public void setDegrees(ArrayList<Degree> degrees){
 		this.degrees = degrees;
 	}
+	//setter for change in funding after it's calculated
+	public void setChangeInFunding(long changeInFunding){
+		this.changeInFunding = changeInFunding;
+	}
 	//getters
 	public String getPermalink(){
 		return permalink;
 	}
 	public long getTotalInvestingUSD(){
 		return totalInvestingUSD;
+	}
+	public String getName(){
+		return name;
+	}
+	public String getWebsite(){
+		return website;
+	}
+	public String getBlog(){
+		return blog;
+	}
+	public String getDescription(){
+		return description;
+	}
+	public String getShortDescription(){
+		return shortDescription;
+	}
+	public String getFoundedDate(){
+		return foundedDate;
+	}
+	public long getMinEmployees(){
+		return minEmployees;
+	}
+	public long getMaxEmployees(){
+		return maxEmployees;
+	}
+	public String getStockSymbol(){
+		return stockSymbol;
+	}
+	public long getChangeInFunding(){
+		return changeInFunding;
+	}
+	public long getNumInvestments(){
+		return numInvestments;
+	}
+	public long getAverageInvestment(){
+		return averageInvestment;
+	}
+	public String getFirstName(){
+		return firstName;
+	}
+	public String getLastName(){
+		return lastName;
+	}
+	public String getType(){
+		return type;
+	}
+	public ArrayList<Degree> getDegrees(){
+		return degrees;
 	}
 	
 	//print function prints everything!

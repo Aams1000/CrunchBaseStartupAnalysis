@@ -15,5 +15,6 @@
 	<classpathentry kind="lib" path="C:/Users/Andrew/Documents/Coding Projects/External JARs/Apache HttpComponents/httpmime-4.5.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Andrew/Documents/Coding Projects/External JARs/Apache HttpComponents/jna-4.1.0.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Andrew/Documents/Coding Projects/External JARs/Apache HttpComponents/jna-platform-4.1.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Andrew/Documents/Coding Projects/External JARs/JavaCSV/javacsv.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

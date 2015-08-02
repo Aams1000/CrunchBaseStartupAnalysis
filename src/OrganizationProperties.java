@@ -1,10 +1,6 @@
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sun.jna.platform.win32.Sspi.TimeStamp;
 
 //OrganizationProperties contains all important information about an Organization
 @JsonIgnoreProperties (ignoreUnknown = true)
@@ -22,6 +18,7 @@ public class OrganizationProperties {
 	private long minEmployees;
 	private long maxEmployees;
 	private String stockSymbol;
+	private long changeInFunding;
 	
 	//CrunchBase data labels for JSON to locate appropriate values
 	private final String JSON_PERMALINK = "permalink";
@@ -33,11 +30,7 @@ public class OrganizationProperties {
 	private final String JSON_MAX_EMPLOYEES = "num_employees_max";
 	private final String JSON_TOTAL_FUNDING_USD = "total_funding_usd";
 	private final String JSON_WEBSITE = "homepage_url";
-	//private final String JSON_BLOG = "";
 	private final String JSON_STOCK_SYMBOL = "stock_symbol";
-	
-	
-	/*************************ADD BLOG******************************/
 	
 	//constructor takes all values from JSON string
 	@JsonCreator
@@ -63,11 +56,48 @@ public class OrganizationProperties {
 	public long getTotalFundingUSD(){
 		return totalFundingUSD;
 	}
+	public String getPermalink(){
+		return permalink;
+	}
+	public String getName(){
+		return name;
+	}
+	public String getWebsite(){
+		return website;
+	}
+	public String getBlog(){
+		return blog;
+	}
+	public String getDescription(){
+		return description;
+	}
+	public String getShortDescription(){
+		return shortDescription;
+	}
+	public String getFoundedDate(){
+		return foundedDate;
+	}
+	public long getMinEmployees(){
+		return minEmployees;
+	}
+	public long getMaxEmployees(){
+		return maxEmployees;
+	}
+	public String getStockSymbol(){
+		return stockSymbol;
+	}
+	public long getChangeInFunding(){
+		return changeInFunding;
+	}
+
 	//organizations don't have their blog directly in their API profile
 	public void setBlogURL(String blog){
 		this.blog = blog;
 	}
-	
+	//setter for change in funding after it's calculated
+	public void setChangeInFunding(long changeInFunding){
+		this.changeInFunding = changeInFunding;
+	}
 	//print function prints everything!
 	public void print(){
 		System.out.println("Permalink: " + permalink);
@@ -83,6 +113,4 @@ public class OrganizationProperties {
 		System.out.println("Blog: " + blog);
 		System.out.println();
 	}
-	
-	
 }
