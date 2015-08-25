@@ -16,10 +16,11 @@ import java.util.concurrent.TimeUnit;
 import com.csvreader.CsvWriter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class AnalyzeStartupScene {
+public class AnalyzeFrenchFintechScene {
 
     //hashmaps for storing companies and investors by name. Using concurrent structure to avoid race conditions with threads
     private static ConcurrentHashMap<String, Organization> companies;
+    private static ConcurrentHashMap<String, OrganizationSummary> summaries;
     private static ConcurrentHashMap<String, Investor> investors;
     
     //number of companies/investors we want to include in our "top ten" lists
@@ -37,6 +38,9 @@ public class AnalyzeStartupScene {
 	private static final String ORGANIZATION = "Organization";
 	private static final String PERSON = "Person";
 	private static final String PERMALINK_SEARCH = "Permalink";
+	private static final String ORGANIZATION_SEARCH = "Organization";
+	private static final String LOCATION_FRANCE = "f134827e36a1fd31a82f950489e103ef";
+	private static final String CATEGORY_FINTECH = "e06799a9f78976e749a771ee980a70ec";
 	
 	//JSON parsing variables
 	private static ObjectMapper mapper = new ObjectMapper();
@@ -53,17 +57,50 @@ public class AnalyzeStartupScene {
     
     public static void main(String[] args) {
      
-        companies = generateCompanies(COMPANIES_FILE);
-        System.out.println("Done generating companies.");
-       
-        investors = updateInvestorInformation(companies);
-        System.out.println("Finished printing investors.");
-        System.out.println("Number of investors: " + investors.size());
-        
-        getCompaniesByTotalFunding(companies, NUM_RESULTS);
-        getInvestorsByTotalFunding(investors, NUM_RESULTS);
-        getCompaniesByRecentFunding(companies, NUM_RESULTS);
-        getInvestorsByRecentFunding(investors, NUM_RESULTS);
+    	//find companies, generate full profiles
+    	summaries = findCompaniesByCategoryAndLocation(CATEGORY_FINTECH, LOCATION_FRANCE);
+//        investors = updateInvestorInformation(companies);
+//        System.out.println("Finished printing investors.");
+//        System.out.println("Number of investors: " + investors.size());
+//        
+//        getCompaniesByTotalFunding(companies, NUM_RESULTS);
+//        getInvestorsByTotalFunding(investors, NUM_RESULTS);
+//        getCompaniesByRecentFunding(companies, NUM_RESULTS);
+//        getInvestorsByRecentFunding(investors, NUM_RESULTS);
+    }
+    
+    //findCompaniesByCategoryAndLocation function finds CrunchBase companies by given category and location,
+    //returns ConcurrentHashMap with their permalinks as keys
+    public static ConcurrentHashMap<String, OrganizationSummary> findCompaniesByCategoryAndLocation(String category, String location){
+    	ConcurrentHashMap<String, OrganizationSummary> summaries = new ConcurrentHashMap<String, OrganizationSummary>();
+    	//get summaries, store permalinks in companies hashmap
+    	ExecutorService threadPool = Executors.newFixedThreadPool(NUM_THREADS);
+    	Callable<String> query = new CrunchBaseQuery(ORGANIZATION_SEARCH, category, location);
+    	Future<String> futureResult= threadPool.submit(query);
+    	try{
+    		String result = futureResult.get();
+    		if (result != null){
+    			JSONWrapperOrganizationSummarySearch summariesData = mapper.readValue(result, JSONWrapperOrganizationSummarySearch.class);
+    			System.out.println("Created wrapper.");
+    			for (OrganizationSummary summary : summariesData.getSummaryWrapper().getSummaries()){
+    				summaries.put(summary.getPermalink(), summary);
+    				summary.getProperties().print();
+    			}
+    		}
+    	}
+    	catch (InterruptedException | ExecutionException | IOException ex){
+    		ex.printStackTrace();
+    	}
+    	finally{
+    		threadPool.shutdown();
+    		try{
+    			threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+    		}
+    		catch (InterruptedException ex){
+    			ex.printStackTrace();
+    		}
+    	}
+    	return summaries;
     }
     
     //read in Organization names from file, constructs companies out of them.
@@ -81,7 +118,7 @@ public class AnalyzeStartupScene {
             //parse each line, create Organization object
             while((line = reader.readLine()) != null){
                 //System.out.println(line);
-                Callable<String> query = new CrunchBaseQuery(PERMALINK_SEARCH, line, ORGANIZATION);
+                Callable<String> query = new CrunchBaseQuery(line, ORGANIZATION);
                 Future<String> futureResult = threadPool.submit(query);
                 //let's not make too many requests in a short window of time
                 try {
@@ -142,7 +179,7 @@ public class AnalyzeStartupScene {
         			if (updatedInvestors.get(currInvestor.getPermalink()) != null){
         				continue;
         			}
-        			Callable<String> query = new CrunchBaseQuery(PERMALINK_SEARCH, entry.getKey(), currInvestor.getType());
+        			Callable<String> query = new CrunchBaseQuery(entry.getKey(), currInvestor.getType());
         			Future<String> futureResult = threadPool.submit(query);
         			//let's pause so as not to overwhelm the API with calls
         			try {
