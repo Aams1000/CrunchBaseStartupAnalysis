@@ -38,6 +38,9 @@ public class FundingRoundProperties {
 	}
 	public String getDateClosed(){
 		return dateClosed;
+	}	
+	public String getType() {
+		return type;
 	}
 	//print function prints everything!
 	public void print(){

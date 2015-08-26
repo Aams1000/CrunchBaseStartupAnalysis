@@ -80,6 +80,8 @@ public class InvestorProperties {
 	//Investor constructor passes type value through setter function
 	public void setType(String type){
 		this.type = type;
+		if (type.equals(PERSON))
+			name = firstName + " " + lastName;
 	}
 	//same for totalInvestingUSD
 	public void setTotalInvestingUSD(long totalInvestingUSD){

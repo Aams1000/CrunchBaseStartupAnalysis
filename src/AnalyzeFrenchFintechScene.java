@@ -3,6 +3,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Map.Entry;
@@ -25,10 +26,13 @@ public class AnalyzeFrenchFintechScene {
     
     //number of companies/investors we want to include in our "top ten" lists
     private static final int NUM_RESULTS = 10;
+    private static final int NUM_INVESTORS = 10;
+    private static final int NUM_FUNDING_ROUNDS = 4;
+    private static final String EMPTY_FIELD = "";
     
     //parameters for calculating changes in funding
-    private static final int LAST_YEAR = 2011;
-    private static final int CURRENT_YEAR = 2012;
+    private static final int LAST_YEAR = 2014;
+    private static final int CURRENT_YEAR = 2015;
     
     //number of threads to query API, delay to avoid sending in too many requests concurrently
     private static final int NUM_THREADS = 3;
@@ -50,23 +54,21 @@ public class AnalyzeFrenchFintechScene {
     private static String COMPANIES_FILE = "src/company_list.txt";
     
     //filenames for database creation
-    private static final String FILENAME_INVESTORS_BY_RECENT_FUNDING = "investorsByRecentFunding.csv";
-    private static final String FILENAME_COMPANIES_BY_RECENT_FUNDING = "companiesByRecentFunding.csv";
-    private static final String FILENAME_INVESTORS_BY_TOTAL_FUNDING = "investorsByTotalFunding.csv";
-    private static final String FILENAME_COMPANIES_BY_TOTAL_FUNDING = "companiesByTotalFunding.csv";
+    private static final String FILENAME_INVESTORS_BY_RECENT_FUNDING = "FrenchFintechInvestorsByRecentFunding.csv";
+    private static final String FILENAME_COMPANIES_BY_RECENT_FUNDING = "FrenchFintechCompanies.csv";
+    private static final String FILENAME_INVESTORS_BY_TOTAL_FUNDING = "FrenchFintechInvestorsByTotalFunding.csv";
+    private static final String FILENAME_COMPANIES_BY_TOTAL_FUNDING = "FrenchFintechCompaniesByTotalFunding.csv";
     
     public static void main(String[] args) {
      
     	//find companies, generate full profiles
     	summaries = findCompaniesByCategoryAndLocation(CATEGORY_FINTECH, LOCATION_FRANCE);
-//        investors = updateInvestorInformation(companies);
+    	companies = generateCompanies(summaries);
+    	System.out.println("\nNumber of companies: " + companies.size());
+        investors = updateInvestorInformation(companies);
 //        System.out.println("Finished printing investors.");
-//        System.out.println("Number of investors: " + investors.size());
-//        
-//        getCompaniesByTotalFunding(companies, NUM_RESULTS);
-//        getInvestorsByTotalFunding(investors, NUM_RESULTS);
-//        getCompaniesByRecentFunding(companies, NUM_RESULTS);
-//        getInvestorsByRecentFunding(investors, NUM_RESULTS);
+        System.out.println("Number of investors: " + investors.size());
+        getCompaniesByRecentFunding(companies, companies.size(), NUM_INVESTORS, NUM_FUNDING_ROUNDS);
     }
     
     //findCompaniesByCategoryAndLocation function finds CrunchBase companies by given category and location,
@@ -84,7 +86,7 @@ public class AnalyzeFrenchFintechScene {
     			System.out.println("Created wrapper.");
     			for (OrganizationSummary summary : summariesData.getSummaryWrapper().getSummaries()){
     				summaries.put(summary.getPermalink(), summary);
-    				summary.getProperties().print();
+    				//summary.getProperties().print();
     			}
     		}
     	}
@@ -104,62 +106,46 @@ public class AnalyzeFrenchFintechScene {
     }
     
     //read in Organization names from file, constructs companies out of them.
-    public static ConcurrentHashMap<String, Organization> generateCompanies(String fileName){
+    public static ConcurrentHashMap<String, Organization> generateCompanies(ConcurrentHashMap<String, OrganizationSummary> summaries){
                     
         //hashmap to store companies
         ConcurrentHashMap<String, Organization> newCompanies = new ConcurrentHashMap<String, Organization>();
         //thread pool to make calls
         ExecutorService threadPool = Executors.newFixedThreadPool(NUM_THREADS);
-        //read in file
-        try{
-            reader = new BufferedReader(new FileReader(fileName));
-            String line = "";
-            
-            //parse each line, create Organization object
-            while((line = reader.readLine()) != null){
-                //System.out.println(line);
-                Callable<String> query = new CrunchBaseQuery(line, ORGANIZATION);
-                Future<String> futureResult = threadPool.submit(query);
-                //let's not make too many requests in a short window of time
-                try {
-					Thread.sleep(API_CALL_DELAY);
-				} 
-                catch (InterruptedException ex) {
-					ex.printStackTrace();
-				}
-                //create Organization object from JSON string
-                try{
-                	String result = futureResult.get();
-                	if (result != null){
-                		JSONWrapperOrganization organizationData = mapper.readValue(result, JSONWrapperOrganization.class);
-                		newCompanies.put(line, organizationData.getOrganization());
-                	}
-                }
-                catch (InterruptedException | ExecutionException ex) {
-                	ex.printStackTrace();
-                }
-            }
+        
+        //make API call and create company profile for each summary
+        for (Entry<String, OrganizationSummary> entry : summaries.entrySet()){
+        	String currPermalink = entry.getKey();
+        	Callable<String> query = new CrunchBaseQuery(PERMALINK_SEARCH, currPermalink, ORGANIZATION);
+        	Future<String> futureResult = threadPool.submit(query);
+        	//let's pause so as not to overwhelm the API with calls
+        	try{
+        		Thread.sleep(API_CALL_DELAY);
+        	}
+        	catch (InterruptedException ex){
+        		ex.printStackTrace();
+        	}
+        	try{
+        		//retrieve company data, add to ConcurrentHashMap
+        		String result = futureResult.get();
+        		if (result != null){
+        			JSONWrapperOrganization organizationData = mapper.readValue(result, JSONWrapperOrganization.class);
+        			Organization currOrganization = organizationData.getOrganization();
+        			newCompanies.put(currPermalink, currOrganization);
+        			//currOrganization.getProperties().print();
+        		}
+        	}
+        	catch (InterruptedException | ExecutionException | IOException ex){
+        		ex.printStackTrace();
+        	}
         }
-        catch(IOException ex){
+        threadPool.shutdown();
+        try{
+        	threadPool.awaitTermination(Long.MAX_VALUE,TimeUnit.NANOSECONDS);
+        }
+        catch (InterruptedException ex){
         	ex.printStackTrace();
         }
-        finally{
-            try{
-            	reader.close();
-            }
-            catch(IOException ex){
-            	ex.printStackTrace();
-            }
-            //shutdown ExecutorService
-            threadPool.shutdown();
-            try {
-            	threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-            }
-            catch (InterruptedException ex) {
-              ex.printStackTrace();
-            }
-        }
-
         return newCompanies;
     }
 
@@ -179,7 +165,7 @@ public class AnalyzeFrenchFintechScene {
         			if (updatedInvestors.get(currInvestor.getPermalink()) != null){
         				continue;
         			}
-        			Callable<String> query = new CrunchBaseQuery(entry.getKey(), currInvestor.getType());
+        			Callable<String> query = new CrunchBaseQuery(PERMALINK_SEARCH, entry.getKey(), currInvestor.getType());
         			Future<String> futureResult = threadPool.submit(query);
         			//let's pause so as not to overwhelm the API with calls
         			try {
@@ -215,7 +201,7 @@ public class AnalyzeFrenchFintechScene {
     }
     
     //getCompaniesByTotalFunding function sorts companies by total funding
-    public static Organization[] getCompaniesByTotalFunding(ConcurrentHashMap<String, Organization> companies, int numCompanies){
+    public static Organization[] getCompaniesByTotalFunding(ConcurrentHashMap<String, Organization> companies, int numCompanies, int numInvestors, int numFundingRounds){
     	//convert ConcurrentHashMap to array, sort
     	Organization[] companiesArray = companies.values().toArray(new Organization[companies.size()]);
     	Arrays.sort(companiesArray, new TotalFundingComparator());
@@ -227,23 +213,23 @@ public class AnalyzeFrenchFintechScene {
     		topCompanies[i].getProperties().print();
     	}
     	//create CSV file
-    	writeCompaniesCSV(topCompanies, FILENAME_COMPANIES_BY_TOTAL_FUNDING);
+    	writeCompaniesCSV(topCompanies, FILENAME_COMPANIES_BY_TOTAL_FUNDING, numInvestors, numFundingRounds);
     	return topCompanies;
     }
     
     //getCompaniesByRecentFunding function sorts companies by largest uptick in recent funding
-    public static Organization[] getCompaniesByRecentFunding(ConcurrentHashMap<String, Organization> companies, int numCompanies){
+    public static Organization[] getCompaniesByRecentFunding(ConcurrentHashMap<String, Organization> companies, int numCompanies, int numInvestors, int numFundingRounds){
     	//convert ConcurrentHashMap to array, sort
     	Organization[] companiesArray = companies.values().toArray(new Organization[companies.size()]);
     	Arrays.sort(companiesArray, new RecentFundingComparator());
     	Organization[] topCompanies = new Organization[numCompanies];
     	for (int i = 0; i < numCompanies; i++){
     		topCompanies[i] = companiesArray[i];
-    		System.out.println("Number " + (i + 1) + ": change in funding of " + topCompanies[i].getChangeInFunding(LAST_YEAR, CURRENT_YEAR));
-    		topCompanies[i].getProperties().print();
+//    		System.out.println("Number " + (i + 1) + ": change in funding of " + topCompanies[i].getChangeInFunding(LAST_YEAR, CURRENT_YEAR));
+//    		topCompanies[i].getProperties().print();
     	}
     	//create CSV file
-    	writeCompaniesCSV(topCompanies, FILENAME_COMPANIES_BY_RECENT_FUNDING);
+    	writeCompaniesCSV(topCompanies, FILENAME_COMPANIES_BY_RECENT_FUNDING, numInvestors, numFundingRounds);
     	return topCompanies;
     }
     //getInvestorsByTotalFunding function sorts investors by total funding
@@ -321,7 +307,7 @@ public class AnalyzeFrenchFintechScene {
     }
     
     //CSV writing methods
-    public static void writeCompaniesCSV(Organization[] companies, String fileName){
+    public static void writeCompaniesCSV(Organization[] companies, String fileName, int numInvestors, int numFundingRounds){
 
         //check if file exists
         if(new File(fileName).exists())
@@ -342,6 +328,14 @@ public class AnalyzeFrenchFintechScene {
             writer.write("maxEmployees");
             writer.write("stockSymbol");
             writer.write("changeInFunding");
+            for (int i = 0; i < numInvestors; i++){
+            	writer.write("investor " + i);
+            }
+            for (int i = 0; i < numFundingRounds; i++){
+            	writer.write("fundingRoundType");
+            	writer.write("moneyRaisedUSD");
+            	writer.write("dateAnnounced");
+            }
             writer.endRecord();
             //write data
             for (Organization company : companies){
@@ -358,6 +352,48 @@ public class AnalyzeFrenchFintechScene {
                 writer.write(Long.toString(properties.getMaxEmployees()));
                 writer.write(properties.getStockSymbol());
                 writer.write(Long.toString(properties.getChangeInFunding()));
+                //write investors
+                if (company.getRelationships().getInvestors() != null){
+                	ArrayList<Investor> investors = new ArrayList<Investor>(company.getRelationships().getInvestors().values());
+                	for (int i = 0; i < numInvestors; i++){
+                		if (i < investors.size()){
+                			if (investors.get(i).getType().equals(ORGANIZATION))
+                				writer.write(investors.get(i).getProperties().getName());
+                			else{
+                				writer.write(investors.get(i).getProperties().getFirstName() + " " + investors.get(i).getProperties().getLastName());
+                				System.out.println(investors.get(i).getProperties().getFirstName() + " " + investors.get(i).getProperties().getLastName());
+                			}
+                		}
+                		else
+                			writer.write(EMPTY_FIELD);
+                	}
+                }
+                else{
+                	for (int i = 0; i < numInvestors; i++)
+                		writer.write(EMPTY_FIELD);
+                }
+                //write fundingRounds
+                ArrayList<FundingRound> fundingRounds = company.getRelationships().getFundingRounds();
+                if (fundingRounds != null){
+                	for (int i = 0; i < numFundingRounds; i++){
+                		if (i < fundingRounds.size()){
+                			writer.write(fundingRounds.get(i).getProperties().getType());
+                			writer.write(Long.toString(fundingRounds.get(i).getProperties().getMoneyRaisedUSD()));
+                			writer.write(fundingRounds.get(i).getProperties().getDateAnnounced());
+                		}
+                		else{
+                			writer.write(EMPTY_FIELD);
+                			writer.write(EMPTY_FIELD);
+                			writer.write(EMPTY_FIELD);
+                		}
+                	}
+                }
+                else{
+                	for (int i = 0; i < numFundingRounds; i++)
+                		writer.write(EMPTY_FIELD);
+                		writer.write(EMPTY_FIELD);
+                		writer.write(EMPTY_FIELD);
+                }
                 writer.endRecord();
             }
             writer.close();
